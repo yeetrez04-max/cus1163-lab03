@@ -315,14 +315,20 @@ writing. Don't try to read from the write end or write to the read end.
 After completing the lab, think about these questions:
 
 1. What happens to memory when fork() creates a new process? Does the child get a complete copy of the parent's memory?
+   When you call fork(), the child starts off with basically the same memory/variables as the parent at that moment.
+   It acts like a full copy, but the OS usually does this copy-on-write thing, so it doesn’t actually duplicate everything unless one of them changes something.
+
 
 2. Why must unused pipe ends be closed? What would happen if you forgot to close them?
+   if you leave the wrong end open, the reader might never see “end of file” and it can just sit there waiting forever.
+
 
 3. What are zombie processes and how does wait() prevent them? What would happen to your system if zombie processes
    accumulated?
+   A zombie is when the child finished but the parent hasn’t “collected” it yet, so it still shows up in the process table. wait() / waitpid() cleans it up by grabbing the exit status.
 
 4. How does the kernel track parent-child relationships? What happens if a parent process dies before its children?
-
+   The kernel keeps track using PIDs and the child has a PPID (parent PID). If the parent dies first, the child usually gets adopted by init/systemd, and then that process will handle waiting on it so it doesn’t stay a zombie.
 #### What You're Really Learning
 
 The techniques you're practicing in this lab are the building blocks of modern computing. Web servers use these patterns
